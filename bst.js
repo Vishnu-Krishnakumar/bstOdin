@@ -32,49 +32,50 @@ const tree = function (array){
     return root;
   }
   
-  const insert = (root,value) =>{
-    if( root === null) return node(value);
-    if( root.value === value) return root;
-    if(value< root.value){
-      root.left = insert(root.left,value);
+  const insert = (currentNode,value) =>{
+    if( currentNode === null) return node(value);
+    if( currentNode.value === value) return currentNode;
+    if(value< currentNode.value){
+      currentNode.left = insert(currentNode.left,value);
     }
-    if(value > root.value){
-      root.right = insert(root.right,value);
+    if(value > currentNode.value){
+      currentNode.right = insert(currentNode.right,value);
     }
-    return root;
+    return currentNode;
   }
   
-  const remove = (root,value) =>{
-    if (root === null) return root;
+  const remove = (currentNode,value) =>{
+    if (currentNode === null) return currentNode;
   
-    if(root.value > value){
-      root.left = remove(root.left,value);
+    if(currentNode.value > value){
+      currentNode.left = remove(currentNode.left,value);
     }
-    else if(root.value < value){
-      root.right = remove(root.right,value);
+    else if(currentNode.value < value){
+      currentNode.right = remove(currentNode.right,value);
     }
     else{
-      if(root.left === null) return root.right;
-      if(root.right === null) return root.left;
-      let replacement = replacementValue(root);
-      root.value = replacement.value;
-      root.right = remove(root.right,replacement.value);
+      if(currentNode.left === null) return currentNode.right;
+      if(currentNode.right === null) return currentNode.left;
+      let replacement = replacementValue(currentNode);
+      currentNode.value = replacement.value;
+      currentNode.right = remove(currentNode.right,replacement.value);
     }
-    return root;
+    return currentNode;
   }
   
   const find = (value)=>{
    return searchValue(root,value);
   }
-  const searchValue = (root,value) =>{
-    if(root === null) return "not found";
-    else if(root.value === value) return root;
-    if(root.value > value){
-      root = searchValue(root.left,value);
-    }else if (root.value < value ){
-      root = searchValue(root.right,value);
+
+  const searchValue = (currentNode,value) =>{
+    if(currentNode === null) return "not found";
+    else if(currentNode.value === value) return currentNode;
+    if(currentNode.value > value){
+      currentNode = searchValue(currentNode.left,value);
+    }else if (currentNode.value < value ){
+      currentNode = searchValue(currentNode.right,value);
     }
-    return root;
+    return currentNode;
   }
   
   const levelOrder = (callBack,queue = [root]) =>{
@@ -111,17 +112,48 @@ const tree = function (array){
     if (node === null) return -1;
     let left = height(node.left);
     let right = height(node.right);
-    return Math.max(left,right) +1;
+    return Math.max(left,right) + 1;
   }
 
-  const replacementValue = (root)=>{
-    root = root.right;
-    while(root !== null && root.left !== null){
-      root = root.left
-    }
-    return root;
+  const depth = (node) =>{
+    let count = depthCount(root,node.value, 0)
+    return count;
   }
-  return {insert,remove,getRoot, find, levelOrder,inOrder,preOrder,postOrder,height};
+  const depthCount = (currentNode,value,count) =>{
+    if(currentNode === null) return "not found";
+    else if(currentNode.value === value) return count;
+    if(currentNode.value > value){
+      return depthCount(currentNode.left,value,count+1);
+    }else if (currentNode.value < value ){
+      return depthCount(currentNode.right,value,count+1);
+    }
+  }
+  const isBalanced = (node = root) =>{
+    return isBalancedRec(root) > 0;
+  }
+  const isBalancedRec = (node = root)=>{
+    if(node === null) return 0;
+
+    let left = isBalancedRec(node.left);
+    let right = isBalancedRec(node.right);
+
+    if(left === -1 || right === -1 || Math.abs(left - right) > 1)
+      return -1
+    return Math.max(left,right) + 1;
+  }
+  const balanceTraversal = (arr = [], nodeRoot = root )=>{
+    if( nodeRoot === null) return;
+    balanceTraversal(arr,nodeRoot.left);
+    balanceTraversal(arr,nodeRoot.right);
+    arr.push(nodeRoot.value);
+    return arr;
+  }
+
+  const reBalance = () =>{
+    let arr = balanceTraversal();
+    root = buildTree(arr);
+  }
+  return {insert,remove,getRoot, find, levelOrder,inOrder,preOrder,postOrder,height,depth, isBalanced,reBalance};
 }
 
 function mergeSort(arr){
@@ -154,6 +186,7 @@ function merge(left,right){
   right = right.slice(rightIndex);
   return arr.concat(left).concat(right);
 }
+
 function duplicate(arr){
   let s = new Set(arr);
   arr = [...s];
@@ -174,7 +207,7 @@ const prettyPrint = (node, prefix = "", isLeft = true) => {
   }
 };
 
-let example = [1, 7, 4, 23, 8, 9, 4, 3, 5, 7, 9, 67, 6345, 324];
+let example = [1, 7, 4, 23, 8, 9, 4, 3, 5, 7, 9, 67, 6345, 324,7000,9000,123,435,213];
 let balancedTree = tree(example)
 // balancedTree.insert(balancedTree.getRoot(),200);
 // prettyPrint(balancedTree.getRoot());
@@ -195,6 +228,19 @@ balancedTree.postOrder((root)=>{
 })
 prettyPrint(balancedTree.getRoot());
 console.log(balancedTree.height())
-let test = [1,2,3,4,5]
-test = tree(test);
-console.log(test.height());
+let testValue = balancedTree.find(24);
+console.log(balancedTree.depth(testValue))
+balancedTree.insert(balancedTree.getRoot(),10453)
+balancedTree.insert(balancedTree.getRoot(),143250)
+balancedTree.insert(balancedTree.getRoot(),4235)
+balancedTree.reBalance();
+prettyPrint(balancedTree.getRoot());
+console.log("test")
+console.log(balancedTree.isBalanced());
+
+// console.log(balancedTree.find(5));
+// console.log(balancedTree.height(balancedTree.find(325)))
+// console.log(balancedTree.depth(balancedTree.find(325)))
+// let test = [1,2,3,4,5]
+// test = tree(test);
+// console.log(test.height());
