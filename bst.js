@@ -56,13 +56,19 @@ const tree = function (array){
     else{
       if(currentNode.left === null) return currentNode.right;
       if(currentNode.right === null) return currentNode.left;
-      let replacement = replacementValue(currentNode);
+      let replacement = findLeft(currentNode);
       currentNode.value = replacement.value;
       currentNode.right = remove(currentNode.right,replacement.value);
     }
     return currentNode;
   }
-  
+  const findLeft=(currentNode)=>{
+    currentNode = currentNode.right;
+    while(currentNode !== null  && currentNode.left !== null){
+      currentNode = currentNode.left;
+    }
+    return currentNode;
+  }
   const find = (value)=>{
    return searchValue(root,value);
   }
@@ -221,8 +227,7 @@ let balancedTree = tree(example)
 //   root.value += 1;
 // })
 prettyPrint(balancedTree.getRoot());
-// console.log(balancedTree.getRoot())
-// balancedTree.levelOrder();
+
 balancedTree.postOrder((root)=>{
   root.value += 1;
 })
@@ -233,10 +238,12 @@ console.log(balancedTree.depth(testValue))
 balancedTree.insert(balancedTree.getRoot(),10453)
 balancedTree.insert(balancedTree.getRoot(),143250)
 balancedTree.insert(balancedTree.getRoot(),4235)
-balancedTree.reBalance();
 prettyPrint(balancedTree.getRoot());
-console.log("test")
-console.log(balancedTree.isBalanced());
+// balancedTree.reBalance();
+balancedTree.remove(balancedTree.getRoot(),325);
+prettyPrint(balancedTree.getRoot());
+// console.log("test")
+// console.log(balancedTree.isBalanced());
 
 // console.log(balancedTree.find(5));
 // console.log(balancedTree.height(balancedTree.find(325)))
